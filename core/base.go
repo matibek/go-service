@@ -32,13 +32,17 @@ func (b *base) init(services []Service) (err error) {
 // initializes configration
 func (b *base) initConfig() (err error) {
 	config := viper.New()
-	config.SetDefault("SERVER_ENV", "local")
+	defaultEnv := "local"
+	config.SetDefault("SERVER_ENV", defaultEnv)
 	config.SetDefault("DEBUG", true)
 	config.SetDefault("ENABLE_NEWRELIC", false)
 	config.AutomaticEnv()
 	config.AddConfigPath("./config/")
 	config.SetConfigName("config." + config.GetString("SERVER_ENV"))
 	err = config.ReadInConfig()
+	if err != nil && config.GetString("SERVER_ENV") == defaultEnv {
+		err = nil // Incase of local config missing, continue
+	}
 	b.config = config
 	return
 }
