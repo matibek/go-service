@@ -16,7 +16,6 @@ type base struct {
 
 // initializes all the dependencies
 func (b *base) init(services []Service) (err error) {
-	// TODO: db connections
 	if err = b.initConfig(); err != nil {
 		return
 	}

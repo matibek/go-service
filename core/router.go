@@ -50,8 +50,15 @@ func (r *router) homeController(c *Context) {
 }
 
 func (r *router) healthController(c *Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "healthy"})
-	// TODO: add test for database here
+	for _, service := range r.services {
+		err := service.Health()
+		if err != nil {
+			Logger.Error("Service health error: ", err)
+			c.AbortWithStatus(500)
+			return
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"server": "healthy"})
 }
 
 // errorMiddleware handle errors on all controllers

@@ -20,6 +20,8 @@ type Server interface {
 // Service provides methods for interacting with a microservice instance
 type Service interface {
 	RegisterRoute(serviceDriver *Engine)
+	Health() error
+	Clean() error
 }
 
 // Context is a router context
@@ -68,6 +70,12 @@ func (s *server) Start() {
 func (s *server) Exit(sig os.Signal) {
 	Logger.Info("Service is exiting with signal ", sig)
 	s.base.clean()
+	for _, service := range s.services {
+		err := service.Clean()
+		if err != nil {
+			Logger.Error("Failed to clean service: ", err)
+		}
+	}
 	if sig == nil {
 		os.Exit(0) // OK
 	}
