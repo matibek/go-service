@@ -21,6 +21,8 @@ Go 1.9 or later
 - Set `DEBUG=false` to disable debug mode
 - Set `ENABLE_NEWRELIC=true` to enable newrelic (Note: we need to setup the configration of newrelic too)
 
+# Doc
+[![GoDoc](https://godoc.org/github.com/matibek/service-scaffolding-go/core?status.svg)](https://godoc.org/github.com/matibek/service-scaffolding-go/core)
+
 # TODO
-- unit tests
-- db connections
+- unit test
