@@ -1,7 +1,10 @@
 package helloworld
 
 import (
+	"errors"
 	"fmt"
+
+	"github.com/matibek/service-scaffolding-go/core"
 )
 
 // Service for helloworld
@@ -19,6 +22,11 @@ func (Service) Health() (err error) {
 	return
 }
 
+// RegisterRoute adds a routing to the driver
+func (Service) RegisterRoute(driver *core.Engine) {
+	RegisterRoute(driver)
+}
+
 // NewService returns a helloworld service instance
 func NewService() Service {
 	return Service{}
@@ -28,6 +36,10 @@ func NewService() Service {
 // Service tasks
 ////////////////////////////////////////////////////////
 
-func replyHello(name string) string {
-	return fmt.Sprintf("Hello %s", name)
+func replyHello(name string) (string, error) {
+	if name == "error" {
+		err := core.NewError("This sample error", errors.New("This is inner error"))
+		return "", err
+	}
+	return fmt.Sprintf("Hello %s", name), nil
 }

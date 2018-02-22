@@ -1,10 +1,13 @@
 package core
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -40,8 +43,9 @@ var (
 )
 
 type server struct {
-	base     *base
-	services []Service
+	base       *base
+	services   []Service
+	httpServer *http.Server
 }
 
 // Init initializes the dependencies
@@ -62,13 +66,22 @@ func (s *server) Start() {
 	}
 	Config.SetDefault("server.port", 8080)
 	port := Config.GetInt("server.port")
-	Logger.Info(fmt.Sprintf("Service is running on http://localhost:%d", port))
-	Driver.Run(fmt.Sprintf(":%d", port))
+	s.httpServer = &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: Driver,
+	}
+	// service connections
+	if err := s.httpServer.ListenAndServe(); err != nil {
+		Logger.Info(fmt.Sprintf("Service is running on http://localhost:%d", port))
+	} else {
+		panic(err)
+	}
 }
 
-// Exit will gracefully shuts down the server
+// Exit will gracefully shutdown the server
 func (s *server) Exit(sig os.Signal) {
 	Logger.Info("Service is exiting with signal ", sig)
+	// Clean
 	s.base.clean()
 	for _, service := range s.services {
 		err := service.Clean()
@@ -76,6 +89,13 @@ func (s *server) Exit(sig os.Signal) {
 			Logger.Error("Failed to clean service: ", err)
 		}
 	}
+	// Shutdown http server
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		Logger.Fatal("Server Shutdown Error:", err)
+	}
+	// Exit
 	if sig == nil {
 		os.Exit(0) // OK
 	}
@@ -95,7 +115,7 @@ func registerExitHandler(server *server) {
 // NewServer initializes a new instance of server with all services
 func NewServer(services ...Service) Server {
 	base := &base{}
-	server := &server{base, services}
+	server := &server{base, services, nil}
 	registerExitHandler(server)
 	return Server(server)
 }

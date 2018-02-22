@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/getsentry/raven-go"
 	"github.com/gin-gonic/gin"
 	"github.com/newrelic/go-agent"
 	"github.com/spf13/viper"
@@ -10,6 +11,7 @@ import (
 type base struct {
 	config   *viper.Viper
 	newrelic newrelic.Application
+	sentry   *raven.Client
 	driver   *Engine
 	router   *router
 }
@@ -20,6 +22,9 @@ func (b *base) init(services []Service) (err error) {
 		return
 	}
 	if err = b.initNewrelic(); err != nil {
+		return
+	}
+	if err = b.initSentry(); err != nil {
 		return
 	}
 	b.initLogger()
@@ -54,6 +59,16 @@ func (b *base) initNewrelic() (err error) {
 	config := b.config.GetStringMapString("newrelic")
 	newrelicConfig := newrelic.NewConfig(config["app"], config["key"])
 	b.newrelic, err = newrelic.NewApplication(newrelicConfig)
+	return
+}
+
+// initializes Sentry
+func (b *base) initSentry() (err error) {
+	if !b.config.IsSet("sentry") {
+		return
+	}
+	err = raven.SetDSN(b.config.GetString("sentry.dns"))
+	b.sentry = raven.DefaultClient
 	return
 }
 

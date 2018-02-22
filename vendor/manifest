@@ -97,14 +97,6 @@
 			"notests": true
 		},
 		{
-			"importpath": "github.com/evalphobia/logrus_sentry",
-			"repository": "https://github.com/evalphobia/logrus_sentry",
-			"vcs": "git",
-			"revision": "95dff72a491a53aee9321f4a2806e693514697da",
-			"branch": "master",
-			"notests": true
-		},
-		{
 			"importpath": "github.com/fsnotify/fsnotify",
 			"repository": "https://github.com/fsnotify/fsnotify",
 			"vcs": "git",
@@ -117,6 +109,14 @@
 			"repository": "https://github.com/getsentry/raven-go",
 			"vcs": "git",
 			"revision": "563b81fc02b75d664e54da31f787c2cc2186780b",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/gin-contrib/sentry",
+			"repository": "https://github.com/gin-contrib/sentry",
+			"vcs": "git",
+			"revision": "5806d6ecb7b26ed3c169118532b43bcf1fb2b650",
 			"branch": "master",
 			"notests": true
 		},

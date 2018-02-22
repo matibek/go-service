@@ -3,7 +3,6 @@ package core
 import (
 	"os"
 
-	"github.com/evalphobia/logrus_sentry"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,19 +37,5 @@ func initLogger(config map[string]string) {
 	}
 	if formatter, ok := config["formatter"]; ok && formatter == "json" {
 		Logger.Formatter = &logrus.JSONFormatter{}
-	}
-	if sentryDNS, ok := config["sentry"]; ok {
-		hook, err := logrus_sentry.NewSentryHook(sentryDNS, []logrus.Level{
-			logrus.PanicLevel,
-			logrus.FatalLevel,
-			logrus.ErrorLevel,
-		})
-		if err != nil {
-			panic("Failed to send log to sentry!")
-		}
-		hook.StacktraceConfiguration.Enable = true
-		hook.StacktraceConfiguration.Context = 20
-		hook.StacktraceConfiguration.Skip = 8
-		Logger.Hooks.Add(hook)
 	}
 }

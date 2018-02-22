@@ -3,6 +3,7 @@ package core
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sentry"
 	"github.com/gin-gonic/gin"
 	"github.com/newrelic/go-agent/_integrations/nrgin/v1"
 )
@@ -17,14 +18,19 @@ type router struct {
 func (r *router) init() {
 	// Middlewares
 	driver := r.base.driver
-	if r.base.newrelic != nil {
-		driver.Use(nrgin.Middleware(r.base.newrelic))
-	}
 	if r.base.config.GetBool("DEBUG") {
 		driver.Use(gin.Logger())
 	}
-	// router error handler
-	driver.Use(r.errorMiddleware)
+	if r.base.newrelic != nil {
+		driver.Use(nrgin.Middleware(r.base.newrelic))
+		Logger.Info("Newrelic is enalbed!")
+	}
+	// Recovery Middlewares - Note that, the order is in LIFO
+	driver.Use(r.errorRecovery()) // our error handler should be call at last
+	if r.base.sentry != nil {
+		driver.Use(sentry.Recovery(r.base.sentry, false))
+		Logger.Info("Sentry is enalbed!")
+	}
 
 	// Core routes
 	r.registerRoute()
@@ -54,24 +60,34 @@ func (r *router) healthController(c *Context) {
 		err := service.Health()
 		if err != nil {
 			Logger.Error("Service health error: ", err)
-			c.AbortWithStatus(500)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"server": "healthy"})
 }
 
-// errorMiddleware handle errors on all controllers
-func (r *router) errorMiddleware(c *Context) {
-	defer func() {
-		if err := recover(); err != nil {
-			Logger.Error("Unexpected router error: ", err)
-			if serverErr, ok := err.(*ServerError); ok {
-				c.AbortWithStatus(serverErr.HttpStatusCode)
-			} else {
-				c.AbortWithStatus(500)
+// errorRecovery returns a middleware that handle errors on all controllers
+func (router) errorRecovery() gin.HandlerFunc {
+	return func(c *Context) {
+		defer func() {
+			Logger.Info("Recovery")
+			// Panics
+			if err := recover(); err != nil {
+				Logger.Error("Unexpected router error: ", err) // TODO: it will helpfull to show stacktrace
+				c.AbortWithStatus(http.StatusInternalServerError)
 			}
-		}
-	}()
-	c.Next()
+			// Errors
+			if err := c.Errors.Last(); err != nil {
+				switch err.Err.(type) {
+				case *ServerError:
+					serverErr := err.Err.(*ServerError)
+					c.AbortWithStatusJSON(serverErr.HttpStatusCode, serverErr.JSON())
+				default:
+					c.AbortWithStatus(http.StatusInternalServerError)
+				}
+			}
+		}()
+		c.Next()
+	}
 }
