@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/matibek/service-scaffolding-go/core"
-	"github.com/matibek/service-scaffolding-go/helloworld"
+	"github.com/matibek/scaffold-go-service/core"
+	"github.com/matibek/scaffold-go-service/helloworld"
 )
 
 // Application entry point

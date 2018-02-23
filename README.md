@@ -6,7 +6,7 @@ Go 1.9 or later
 
 # How to run
 - `$ go install`
-- `$ service-scaffolding-go` (if you have `$GOPATH/bin` in your `PATH` variable)
+- `$ scaffold-go-service` (if you have `$GOPATH/bin` in your `PATH` variable)
 - Visit http://localhost:8080/ or http://localhost:8080/helloworld?name=guest
 
 # How to create service
@@ -22,7 +22,7 @@ Go 1.9 or later
 - Set `ENABLE_NEWRELIC=true` to enable newrelic (Note: you also need to set the config)
 
 # Doc
-[![GoDoc](https://godoc.org/github.com/matibek/service-scaffolding-go/core?status.svg)](https://godoc.org/github.com/matibek/service-scaffolding-go/core)
+[![GoDoc](https://godoc.org/github.com/matibek/scaffold-go-service/core?status.svg)](https://godoc.org/github.com/matibek/scaffold-go-service/core)
 
 # TODO
 - unit test

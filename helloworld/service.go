@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/matibek/service-scaffolding-go/core"
+	"github.com/matibek/scaffold-go-service/core"
 )
 
 // Service for helloworld
