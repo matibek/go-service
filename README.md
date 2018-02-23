@@ -1,4 +1,4 @@
-# Service Scaffolding for Go Project
+# Scaffold for Go Service
 This project provides the basic structure for [gin-gonic](https://github.com/gin-gonic/gin) go service.
 
 # Prerequisite
