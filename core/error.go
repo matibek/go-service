@@ -2,9 +2,11 @@ package core
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 // ServerError is a warpper over error to allow passing custom values to it.
@@ -20,23 +22,45 @@ func (e *ServerError) Error() (result string) {
 	if e.Code != 0 {
 		result += fmt.Sprintf(" [code=%d]", e.Code)
 	}
-	if e.Err != nil {
-		result += "\n" + e.Err.Error()
-	}
+	result += "\n" + e.Err.Error()
 	return
 }
 
-func (e *ServerError) JSON() interface{} {
+func (e *ServerError) Format(s fmt.State, verb rune) {
+	io.WriteString(s, e.Message+"\n")
+	switch verb {
+	case 'v':
+		if s.Flag('+') {
+			fmt.Fprintf(s, "%+v", e.Err)
+			return
+		}
+		fallthrough
+	case 's':
+		fmt.Fprintf(s, "%s", e.Err)
+	case 'q':
+		fmt.Fprintf(s, "%q", e.Err)
+	}
+}
+
+func (e *ServerError) JSON(stack bool) interface{} {
 	json := gin.H{}
 	json["error"] = e.Message
-	json["detail"] = e.Error() // TODO show only incase of debug
+	json["code"] = e.Code
+	if stack {
+		json["stack"] = fmt.Sprintf("%+v", e)
+	}
 	return json
 }
 
 // NewError makes a ServerError instance from the given value
-func NewError(msg string, err error) *ServerError {
+func NewError(message string, err error) *ServerError {
+	if err == nil {
+		err = errors.New(message)
+	} else {
+		err = errors.WithStack(err)
+	}
 	return &ServerError{
-		Message:        msg,
+		Message:        message,
 		Err:            err,
 		HttpStatusCode: http.StatusInternalServerError,
 	}

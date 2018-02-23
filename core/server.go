@@ -70,15 +70,14 @@ func (s *server) Start() {
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: Driver,
 	}
-	// service connections
-	if err := s.httpServer.ListenAndServe(); err != nil {
-		Logger.Info(fmt.Sprintf("Service is running on http://localhost:%d", port))
-	} else {
-		panic(err)
-	}
+	// Exit handler
+	s.registerExitHandler()
+	// Start connection
+	Logger.Info(fmt.Sprintf("Service is running on http://localhost:%d", port))
+	s.httpServer.ListenAndServe()
 }
 
-// Exit will gracefully shutdown the server
+// Exit will gracefully shutdown the server with a timeout of 5 seconds.
 func (s *server) Exit(sig os.Signal) {
 	Logger.Info("Service is exiting with signal ", sig)
 	// Clean
@@ -103,12 +102,13 @@ func (s *server) Exit(sig os.Signal) {
 }
 
 // registerExitHandler attaches a handler for various exit conditions
-func registerExitHandler(server *server) {
+func (s *server) registerExitHandler() {
+	// Wait for interrupt signal to gracefully shutdown the server
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-sigs
-		server.Exit(sig)
+		s.Exit(sig)
 	}()
 }
 
@@ -116,6 +116,5 @@ func registerExitHandler(server *server) {
 func NewServer(services ...Service) Server {
 	base := &base{}
 	server := &server{base, services, nil}
-	registerExitHandler(server)
 	return Server(server)
 }

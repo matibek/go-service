@@ -18,15 +18,16 @@ type router struct {
 func (r *router) init() {
 	// Middlewares
 	driver := r.base.driver
-	if r.base.config.GetBool("DEBUG") {
+	debug := r.base.config.GetBool("DEBUG")
+	if debug {
 		driver.Use(gin.Logger())
 	}
 	if r.base.newrelic != nil {
 		driver.Use(nrgin.Middleware(r.base.newrelic))
 		Logger.Info("Newrelic is enalbed!")
 	}
-	// Recovery Middlewares - Note that, the order is in LIFO
-	driver.Use(r.errorRecovery()) // our error handler should be call at last
+	// Recovery Middlewares - order is in LIFO
+	driver.Use(r.errorRecovery(debug)) // our error handler should be call at last
 	if r.base.sentry != nil {
 		driver.Use(sentry.Recovery(r.base.sentry, false))
 		Logger.Info("Sentry is enalbed!")
@@ -68,21 +69,21 @@ func (r *router) healthController(c *Context) {
 }
 
 // errorRecovery returns a middleware that handle errors on all controllers
-func (router) errorRecovery() gin.HandlerFunc {
+func (router) errorRecovery(debug bool) gin.HandlerFunc {
 	return func(c *Context) {
 		defer func() {
-			Logger.Info("Recovery")
 			// Panics
 			if err := recover(); err != nil {
-				Logger.Error("Unexpected router error: ", err) // TODO: it will helpfull to show stacktrace
+				Logger.Errorf("Unexpected router error: %+v", err)
 				c.AbortWithStatus(http.StatusInternalServerError)
 			}
 			// Errors
 			if err := c.Errors.Last(); err != nil {
+				Logger.Errorf("Router error: %+v", err.Err)
 				switch err.Err.(type) {
 				case *ServerError:
 					serverErr := err.Err.(*ServerError)
-					c.AbortWithStatusJSON(serverErr.HttpStatusCode, serverErr.JSON())
+					c.AbortWithStatusJSON(serverErr.HttpStatusCode, serverErr.JSON(debug))
 				default:
 					c.AbortWithStatus(http.StatusInternalServerError)
 				}
