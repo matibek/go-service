@@ -25,9 +25,9 @@ Go 1.9 or later
 [![GoDoc](https://godoc.org/github.com/matibek/scaffold-go-service/core?status.svg)](https://godoc.org/github.com/matibek/scaffold-go-service/core)
 
 # Config
-- Application configrations are defined under `/config`. Depending on `SERVER_ENV`, the config file will be loadded. Note that, all env varaibles are overwritten by env config file.
+- Application configrations are defined under `/config`. Depending on `SERVER_ENV`, the config file will be loaded. Note: all server env config varaibles are overwritten by varaibles on config file.
 - Use `config.local.json` to put all sensetive configs without pushing it to source control.
-- Config uses [Viper](https://github.com/spf13/viper) internally. So, the interface same with Viper.
+- Config uses [Viper](https://github.com/spf13/viper) internally. So, the interface is the same with Viper.
 ```go
 import "github.com/matibek/scaffold-go-service/core"
 ...
@@ -40,19 +40,19 @@ import "github.com/matibek/scaffold-go-service/core"
 core.Logger.Infof("hello %s", "world")
 // prints: INFO[2018-02-26 12:20:46] hello world
 ```
-- set `logger.level` for log level (i.e. `info`, `warn`, etc..)
-- set `logger.file` to file path, if we want to log to file
+- Set the config variable `logger.level` for to adjust the log level (i.e. `info`, `warn`, etc..)
+- Set the config variable `logger.file` to file path when you want to log to file.
 
 ## newrelic
-- set the config in `newrelic.app` and `newrelic.key`
-- to enable newrelic, set `ENABLE_NEWRELIC=true` either in config or server env
+- Set the config variable `newrelic.app` and `newrelic.key`
+- To enable newrelic, set `ENABLE_NEWRELIC=true` either using config file or server env
 
 ## sentry
-- Set `sentry.dns` config to enable sentry
+- Set the config variable `sentry.dns` to enable sentry
 
 # Errors
-- Please avoid panics and return the error to router
-- The error middleware will handle the response and logging
+- Please avoid using `panics`. Always return Error to router context.
+- The error middleware will handle all router errors and by sending error response and logging
 ```go
 import "http"
 import "github.com/matibek/scaffold-go-service/core"
@@ -62,15 +62,16 @@ func sampleController(c *core.Context) {
 	if err != nil {
     serverErr := core.Errors.NewWithMessage(err, "Something went wrong!")
     c.Errors(serverErr)  
-    // Error middleware will send a response with 500 with JSON Body: {"error": "Something went wrong!"}
-    // It also make an error log with stack trace
-		return
+    // Error middleware will send a response with 500 
+    // with JSON Body: {"error": "Something went wrong!"}
+    // It also make an error log with the stack trace
+    return
 	}
 	c.String(http.StatusOK, result)
 }
 
 ```
-- The response code for error `500` by default. You can change the response code by setting `HttpStatusCode` property of the Error.
+- By default, the response code for error is `500`. You can change the response code by setting `HttpStatusCode` property of the Error.
 
 # TODO
 - unit test
