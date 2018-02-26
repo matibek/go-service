@@ -10,11 +10,23 @@ Go 1.9 or later
 - Visit http://localhost:8080/ or http://localhost:8080/helloworld?name=guest
 
 # How to create service
-- Fork this project and disable auto syncing
-  - For future changes, setup upstream to the repo and sync - [refer](https://help.github.com/articles/syncing-a-fork/)
-- Create neccssary config files (`config.[ENV].json`) for every env (i.e local, dev, prod, etc..), inside `config/`:
+- Create a `config/` dir inside your repo and add neccssary config files (`config.[ENV].json`) for every env (i.e local, dev, prod, etc..):
   - Make neccessary changes by refering `config/config.sample.json`
-- Setup the service instance inside `main.go` and remove `helloworld` service.
+- Attach the service instance to the server. Similar to `main.go`.
+```go
+package main
+
+import (
+  "github.com/matibek/scaffold-go-service/core"
+  "github.com/username/your-project/yourservice"
+)
+
+func main() {
+	yourservice := yourservice.NewService()
+	server := core.NewServer(yourservice)
+	server.Start()
+}
+```
 
 # Setup
 - Set `SERVER_ENV=env` to load the env configration file (if it is not set, `config.local.json` will be loaded)
