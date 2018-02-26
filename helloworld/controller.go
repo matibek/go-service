@@ -11,6 +11,7 @@ func ReplyHello(c *core.Context) {
 	name := c.DefaultQuery("name", "World")
 	result, err := replyHello(name)
 	if err != nil {
+		err := core.Errors.NewWithMessage(err, "This sample error to client")
 		c.Error(err)
 		return
 	}

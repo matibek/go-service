@@ -40,6 +40,8 @@ var (
 	Config *viper.Viper
 	// Driver is applications http driver
 	Driver *Engine
+	// Errors contains applications errors
+	Errors *Error
 )
 
 type server struct {

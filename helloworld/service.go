@@ -38,8 +38,7 @@ func NewService() Service {
 
 func replyHello(name string) (string, error) {
 	if name == "error" {
-		err := core.NewError("This sample error", errors.New("This is inner error"))
-		return "", err
+		return "", errors.New("This is inner error")
 	}
 	return fmt.Sprintf("Hello %s", name), nil
 }

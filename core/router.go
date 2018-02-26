@@ -81,8 +81,8 @@ func (router) errorRecovery(debug bool) gin.HandlerFunc {
 			if err := c.Errors.Last(); err != nil {
 				Logger.Errorf("Router error: %+v", err.Err)
 				switch err.Err.(type) {
-				case *ServerError:
-					serverErr := err.Err.(*ServerError)
+				case *Error:
+					serverErr := err.Err.(*Error)
 					c.AbortWithStatusJSON(serverErr.HttpStatusCode, serverErr.JSON(debug))
 				default:
 					c.AbortWithStatus(http.StatusInternalServerError)
