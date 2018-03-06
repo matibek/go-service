@@ -3,7 +3,7 @@ package helloworld
 import (
 	"net/http"
 
-	"github.com/matibek/scaffold-go-service/core"
+	"github.com/matibek/go-service/core"
 )
 
 // ReplyHello will respond hello message

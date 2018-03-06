@@ -1,6 +1,6 @@
 package helloworld
 
-import "github.com/matibek/scaffold-go-service/core"
+import "github.com/matibek/go-service/core"
 
 // RegisterRoute adds a routing to the driver
 func RegisterRoute(driver *core.Engine) {
