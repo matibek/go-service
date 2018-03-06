@@ -1,12 +1,13 @@
-# Scaffold for Go Service
-This project provides the basic structure for [gin-gonic](https://github.com/gin-gonic/gin) go service.
+# Go Service
+This project provides the basic structure for [gin-gonic](https://github.com/gin-gonic/gin) based go service.
 
 # Prerequisite
 Go 1.9 or later
 
 # How to run
+- `$ dep ensure`
 - `$ go install`
-- `$ scaffold-go-service` (if you have `$GOPATH/bin` in your `PATH` variable)
+- `$ go-service` (if you have `$GOPATH/bin` in your `PATH` variable)
 - Visit http://localhost:8080/ or http://localhost:8080/helloworld?name=guest
 
 # How to create service
@@ -17,7 +18,7 @@ Go 1.9 or later
 package main
 
 import (
-  "github.com/matibek/scaffold-go-service/core"
+  "github.com/matibek/go-service/core"
   "github.com/username/your-project/yourservice"
 )
 
@@ -34,20 +35,20 @@ func main() {
 - Set `ENABLE_NEWRELIC=true` to enable newrelic (Note: you also need to set the config)
 
 # Doc
-[![GoDoc](https://godoc.org/github.com/matibek/scaffold-go-service/core?status.svg)](https://godoc.org/github.com/matibek/scaffold-go-service/core)
+[![GoDoc](https://godoc.org/github.com/matibek/go-service/core?status.svg)](https://godoc.org/github.com/matibek/go-service/core)
 
 # Config
 - Application configrations are defined under `/config`. Depending on `SERVER_ENV`, the config file will be loaded. Note: all server env config varaibles are overwritten by varaibles on config file.
 - Use `config.local.json` to put all sensetive configs without pushing it to source control.
 - Config uses [Viper](https://github.com/spf13/viper) internally. So, the interface is the same with Viper.
 ```go
-import "github.com/matibek/scaffold-go-service/core"
+import "github.com/matibek/go-service/core"
 ...
 value := core.Config.GetBool("configKey")
 ```
 ## Logger
 ```go
-import "github.com/matibek/scaffold-go-service/core"
+import "github.com/matibek/go-service/core"
 ...
 core.Logger.Infof("hello %s", "world")
 // prints: INFO[2018-02-26 12:20:46] hello world
@@ -65,9 +66,10 @@ core.Logger.Infof("hello %s", "world")
 # Errors
 - Please avoid using `panics`. Always return Error to router context.
 - The error middleware will handle all router errors and by sending error response and logging
+> visit http://localhost:8080/helloworld?name=error to see a sample error
 ```go
 import "http"
-import "github.com/matibek/scaffold-go-service/core"
+import "github.com/matibek/go-service/core"
 
 func sampleController(c *core.Context) {
 	result, err := sampleTask()

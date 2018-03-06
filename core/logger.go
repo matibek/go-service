@@ -29,7 +29,7 @@ func initLogger(config map[string]string) {
 		}
 	}
 	if filename, ok := config["file"]; ok {
-		file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0666)
+		file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
 		if err != nil {
 			panic("Failed to log to file!")
 		}
